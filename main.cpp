@@ -5,80 +5,30 @@
 
 using namespace std;
 
+enum MealType { Breakfast, Lunch, Dinner };
+enum ReserveDay { Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday };
 
-class Student{
-
+class User {
 private:
-
-    int user_id;
-
-    string student_id, name, email;
-
-    float balance;
-
-    bool is_active;
+    int userID;
+    string name, lastName, hashedPassword;
 
 public:
+    User(int id, string n, string ln, string pwd) : userID(id), name(n), lastName(ln), hashedPassword(pwd) {}
 
-    Student(int user_id = 123456789, string student_id = "4050608495", string name = "ali", string email = "example@gmail.com", float balance = 78.5, bool is_active = false)
-    :user_id (user_id), student_id (student_id), name (name), email (email), balance (balance), is_active (is_active){}
+    int getUserID() { return userID; }
+    string getName() { return name; }
+    string getLastName() { return lastName; }
+    string getPassword() { return hashedPassword; }
 
-    void setuser_id(int User_id);
-    void setstudent_id(string Student_id_);
-    void setname(string _name);
-    void setemail(string _email);
-    void setbalance(float _balance);
-    void setis_active(bool _is_active);
-    int getuser_id(){
-        return user_id;
-    }
-    string getstudent_id(){
-        return student_id;
-    }
-    string getname(){
-        return name;
-    }
-    string getemail(){
-        return email;
-    }
-    float getbalance(){
-        return balance;
-    }
-    bool getis_active(){
-        return is_active;
-    }
-    void print();
+    void setName(string n) { name = n; }
+    void setLastName(string ln) { lastName = ln; }
+    void setPassword(string pwd) { hashedPassword = pwd; }
 
-    bool cancel_reservation(int reservation_id){
-
-        return true;
+    virtual void print() const {
+        cout << "User ID: " << userID << "\nName: " << name << " " << lastName << endl;
     }
 };
-
-void Student::print(){
-    cout << "user_id =\t" << getuser_id() << endl;
-    cout << "student_id =\t" << getstudent_id() << endl;
-    cout << "name =\t" << getname() << endl;
-    cout << "email ='t" << getemail() << endl;
-    cout << "balance ='t" << getbalance() << endl;
-    cout << "is_active =\t" << getis_active();
-}
-void Student::setuser_id(int User_id){
-        user_id = User_id;
-    }
-void Student::setstudent_id(string Student_id_){
-        student_id = Student_id_;}
-void Student::setname(string _name){
-        name = _name;}
-void Student::setemail(string _email){
-        email = _email;}
-void Student::setbalance(float _balance){
-        balance = _balance;}
-void Student::setis_active(bool _is_active){
-        is_active  = _is_active;}
-// پایان کلاس student
-//
-
 class DiningHall{
 private:
     int hall_id;
@@ -128,150 +78,117 @@ void DiningHall::setcapacity(int _capacity){
 //پایان کلاس سالن غذا خوری
 //
 
-class Meal{
+class Meal {
 private:
-    int meal_id;
+    int mealID;
     string name;
     float price;
-    enum meal_type{
-    Breakfast, Lunch, Dinner};
-    meal_type Meal_type;
-    vector<string> side_items;
+    bool isActive;
+    MealType mealType;
+    ReserveDay reserveDay;
+    vector<string> sideItems;
 
 public:
-    Meal()
-    :meal_id(0), name("salad"), price(14500), Meal_type(Dinner){}
-    void setmeal_id(int _meal_id);
-    void setname(string _name);
-    void setprice(float _price);
-    void setmeal_type(meal_type _Meal_type);
+    Meal(int id, string n, float p, MealType mt, ReserveDay rd)
+    : mealID(id), name(n), price(p), mealType(mt), reserveDay(rd), isActive(true) {}
 
-    int getmeal_id(){
-    return meal_id;}
+    void activate() { isActive = true; }
+    void deactivate() { isActive = false; }
 
-    string getname(){
-    return name;}
+    void addSideItem(const string& item) { sideItems.push_back(item); }
 
-    float getprice(){
-    return price;}
-
-    meal_type getmeal_type(){
-    return Meal_type;}
-
-    void add_side_item(const string &item);
-
-    void print();
-
-    void updatePrice(float new_price);
-
+    void print() const {
+        cout << "Meal ID: " << mealID << "\nName: " << name << "\nPrice: " << price;
+        cout << "\nType: " << mealType << "\nReserve Day: " << reserveDay << endl;
+    }
 };
 
-void Meal::updatePrice(float new_price) {
-        price = new_price;
-    }
-
-void Meal::setmeal_id(int _meal_id){
-        meal_id = _meal_id;}
-void Meal::setname(string _name){
-        name = _name;}
-void Meal::setprice(float _price){
-    price = _price;}
-void Meal::setmeal_type(meal_type _Meal_type){
-    Meal_type = _Meal_type;}
-
-void Meal::print(){
-    cout << "meal_type=\t" << Meal_type <<endl;
-    cout << "name =\t" << name << endl;
-    cout << "meal id=\t" << meal_id << endl;
-    cout << "price =\t" << price << endl;
-}
-
-void Meal::add_side_item(const string &item){
-    side_items.push_back(item);
-}
 //
-//پایان کلاس رزرو غذا
-class Reservation{
-
+enum RStatus { Active, Cancelled };
+class Reservation {
 private:
-
-    int reservation_id;
-    Student student;
-    DiningHall dHall;
-    Meal meal;
-    enum Status { Active,cancelled };
-    time_t created_at;
-    Status status;
+    int reservationID;
+    DiningHall* dHall;
+    Meal* meal;
+    RStatus status;
+    time_t createdAt;
 
 public:
+    Reservation(int id, DiningHall* hall, Meal* m)
+    : reservationID(id), dHall(hall), meal(m), status(Active), createdAt(time(nullptr)) {}
 
-    Reservation()
-    :reservation_id (0), student(Student()), dHall(DiningHall()), meal (Meal()),status (Active), created_at(time(nullptr)){}
+    void setStatus(RStatus s) { status = s; }
+    RStatus getStatus() const { return status; }
 
-    void setreservation_id ( int Reservation_id );
-    void setStudent (const Student &_student);
-    void setDiningHall ( const DiningHall &_dHall);
-    void setMeal (const Meal &_meal);
-    void setstatus ( Status _status );
-    void setcreated_at ( time_t _created_at );
-
-    int getreservation_id(){
-        return reservation_id;
-    }
-    Student getStudent(){
-        return student;
-    }
-    DiningHall getDiningHall(){
-        return dHall;
-    }
-    Meal getMeal(){
-        return meal;
-    }
-    Status getstatus (){
-        return status;
-    }
-    time_t getcreated_at(){
-        return created_at;
-    }
-    void print();
-
-    bool cancel();
-
-    void reserve_meal(Meal meal){
+    void print() const {
+        cout << "Reservation ID: " << reservationID << "\nStatus: " << status << "\nCreated At: " << createdAt << endl;
+        dHall->print();
+        meal->print();
     }
 };
 
-void Reservation::print(){
-    cout << "reservation= \t" << getreservation_id() <<endl;
-    cout << "status= \t" << getstatus() << endl;
-    cout << "time reserve= \t" << getcreated_at() << endl;
-    student.print();
-    dHall.print();
-    meal.print();
-}
+class Student : public User {
+private:
+    string studentID, email, phone;
+    float balance;
+    bool isActive;
+    vector<Reservation> reserves;
 
-bool Reservation::cancel(){
-    if(status == cancelled)
-        {cout << true; }
-    else if(status == Active)
-        {cout << false;}
-}
+public:
+    Student(int id, string n, string ln, string pwd, string sID, string mail, string ph, float bal)
+    : User(id, n, ln, pwd), studentID(sID), email(mail), phone(ph), balance(bal), isActive(true) {}
 
-void Reservation::setreservation_id ( int Reservation_id ){
-        reservation_id = Reservation_id;}
-void Reservation::setStudent (const Student &_student){
-        student = _student;}
-void Reservation::setDiningHall ( const DiningHall &_dHall ){
-        dHall = _dHall;}
-void Reservation::setMeal (const Meal &_meal){
-        meal = _meal;}
-void Reservation::setstatus ( Status _status ){
-        status = _status;}
-void Reservation::setcreated_at ( time_t _created_at ){
-        created_at = _created_at;}
-// پایان کلاس رزرو
-//
+    void activate() { isActive = true; }
+    void deactivate() { isActive = false; }
+    bool getIsActive() { return isActive; }
 
+    void addReservation(const Reservation& res) { reserves.push_back(res); }
+
+    void print() const override {
+        User::print();
+        cout << "Student ID: " << studentID << "\nEmail: " << email << "\nBalance: " << balance << endl;
+    }
+};
+class Storage {
+private:
+    static Storage* instance;
+    vector<Meal> allMeals;
+    vector<DiningHall> allDiningHalls;
+
+    Storage() {} // private constructor
+
+public:
+    static Storage* getInstance() {
+        if (!instance) instance = new Storage();
+        return instance;
+    }
+
+    void addMeal(const Meal& meal) { allMeals.push_back(meal); }
+    void addDiningHall(const DiningHall& hall) { allDiningHalls.push_back(hall); }
+};
+
+Storage* Storage::instance = nullptr;
+
+class Panel {
+public:
+    void showMenu(); // نمایش منو اصلی
+    void showStudentInfo(); // نمایش اطلاعات دانشجو
+    void checkBalance(); // بررسی موجودی حساب
+    void viewReservations(); // نمایش لیست رزروها
+    void addReservation(Reservation); // اضافه کردن رزرو
+    void addToShoppingCart(); // افزودن به سبد خرید
+    void confirmShoppingCart(); // تأیید خرید
+    void removeShoppingCartItem(); // حذف آیتم از سبد خرید
+    void exit(); // خروج از برنامه
+};
+class Admin : public User {
+public:
+    Admin(int id, string n, string ln, string pwd) : User(id, n, ln, pwd) {}
+
+    void activateStudent(Student& s) { s.activate(); }
+    void deactivateStudent(Student& s) { s.deactivate(); }
+    void viewReservations(const vector<Reservation>& reservations);
+};
 int main()
 {
 
