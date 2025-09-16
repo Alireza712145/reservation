@@ -129,8 +129,13 @@ public:
     string getaddress()const{return address;} //get address
 
     void print();
-
+     friend ostream &operator <<(ostream& os, const DiningHall& hall);
 };
+
+    ostream& operator<<(ostream& os, const DiningHall& hall) {
+    os << hall.getname() << " (" << hall.getcapacity() << ")";
+    return os;
+}
 
 void DiningHall::print(){
     cout << "hall id=\t" << gethall_id()
@@ -155,19 +160,26 @@ public:
 
     Reservation(int reserv_id = 00000, DiningHall Dining = DiningHall(), Meal mea = Meal(), time_t _create = time(nullptr), status _status2 = FAILED, bool rstatus = false)
     :reservation_id(reserv_id),dHall(Dining),meal(mea),created_at(_create), _status(_status2), RStatus(rstatus){};
+
     // سازنده
-    int getreservation_id(){return reservation_id;} //get reservation_id
-     //Student getstudent() const {return student;} //get student
-     DiningHall getdiningHall() const{ return dHall;} //get dHall
-     Meal getMeal() const{ return meal;} //get meal
-    time_t getcreated(){return created_at;} //get created_at
-    status getstatus(){ return _status;} //get status
-    bool getrstatus(){return RStatus;}  //get RStatus
+    int getreservation_id()const{return reservation_id;} //get reservation_id
+    //Student getstudent() const {return student;} //get student
+    DiningHall getdiningHall() const{ return dHall;} //get dHall
+    Meal getMeal() const{ return meal;} //get meal
+    time_t getcreated() const{return created_at;} //get created_at
+    status getstatus() const{ return _status;} //get status
+    bool getrstatus()const {return RStatus;}  //get RStatus
 
     void print() ;           // fprint
     bool Cancel();         // fcancel
+
+     friend ostream &operator <<(ostream& os, const DiningHall& hall);
 };
 
+        ostream &operator<<(ostream& os, const Reservation& reserv) {
+        os << reserv.getdiningHall() << " (" << reserv.getreservation_id() << ")";
+        return os;
+    }
     void Reservation::print() {              // fprint
         cout << "reservation id=\t" << getreservation_id()
         <<  "\n time = \t" << getcreated();
@@ -197,7 +209,12 @@ class Student :public User{
     bool is_active;
     vector <Reservation> reservations ;
     string _phone;
+    ShoppingCard* cart;
 public:
+
+    Student() {
+        cart = new ShoppingCard();
+    }
 
     Student(int _user =0000000000 , string _student = "0000000000", string _name = "ali", string _email = "....@email.com", float _balance = 00000.00, bool _active = false, vector<Reservation> res2 = {}, string phone = "0900000000")
     :user_id(_user),student_id(_student),name(_name),email(_email),balance(_balance),is_active(_active), reservations(res2), _phone(phone){};
@@ -210,6 +227,7 @@ public:
     bool getis_active(){return is_active;} //get active
     vector<Reservation> getresrvation(){return reservations;} // get reservation
     string getphone(){return _phone;}  //get phone
+    ShoppingCard* getshoppingcard()const{return cart;}
 
     void print();           //const               //تابع print
 
@@ -380,10 +398,12 @@ public:
    //     }
 
 
-StudentSession::SessionManager session;
 class Panel{
 
 public:
+
+    StudentSession::SessionManager* session;
+
 
     void Action(int _set);
     void showMenu();
@@ -400,7 +420,10 @@ public:
     void cancelReservation(int _canel);
 
     void exit();
+
+
 };
+
 
 void Panel::Action(int choice) {
     switch (choice) {
@@ -445,10 +468,10 @@ void Panel::Action(int choice) {
         cout << "لطفاً گزینه‌ای را انتخاب کنید: ";
     }
     void Panel::showStudentInfo() {
-        Student* student = session.currentStudent();
+        Student* student = session->currentStudent();
             if (student != nullptr) {
                 cout << "name: " << student->getname() << endl;
-                cout << "number student: " << student->getID() << endl;
+                cout << "number student: " << student->getstudent_id() << endl;
                 cout << "etebar: " << student->getbalance() << " price" << endl;
             } else {
                 cout << "no to student." << endl;
@@ -456,7 +479,7 @@ void Panel::Action(int choice) {
     }
 
     void Panel::checkbalance(){
-    Student *student = session.currentStudent();
+    Student *student = session->currentStudent();
          if (student != nullptr) {
                 cout << "no price: " << student->getbalance() << " toman" << endl;
             } else {
@@ -464,32 +487,32 @@ void Panel::Action(int choice) {
             }
         }
     void Panel::viewReservations() {
-        vector<Reservation> list = session.currentStudent()->getShoppingCart()->getReservations();
+        vector<Reservation> list = session->currentStudent()->getresrvation();
         cout << "reserv you:\n";
         for (Reservation r : list) {
-            cout << "- " << r.getHall() << " in " << r.getTime() << endl;
+            cout << "- " << r.getdiningHall() << " in " << r.getcreated() << endl;
         }
     }
-    void Panel::viewShoppingCart() {
-        vector<Reservation> cart = session.currentStudent()->getShoppingCart()->getCartItems();
+    void Panel::viewshppingcard() {
+        vector<Reservation> cart = session->currentStudent()->getresrvation();
         cout << "sabad buy:\n";
         for (Reservation r : cart) {
-            cout << "- " << r.getHall() << " in " << r.getTime() << endl;
+            cout << "- " << r.getdiningHall() << " in " << r.getcreated() << endl;
         }
     }
-    void Panel::addToShoppingCart() {
-        string hall, time;
+  /*  void Panel::addToShoppingCart() {
+        string hall=" ", time=" ";
         cout << "name hall: ";
         cin >> hall;
         cout << "time reserv: ";
         cin >> time;
 
-        Reservation r(hall, time);
-        session.currentStudent()->getShoppingCart()->addToCart(r);
+        Reservation r((hall),_time(time) );
+        session->currentStudent()->addToCart(r);
         cout << "reseerv to sabad ++.\n";
     }
     void Panel::confirmShoppingCart() {
-        session.currentStudent()->getShoppingCart()->confirmCart();
+        session->currentStudent()->confirmCart();
         cout << "reserv taiid.\n";
     }
     void Panel::removeShoppingCartItem() {
@@ -497,19 +520,19 @@ void Panel::Action(int choice) {
         cout << "number remove: ";
         cin >> index;
 
-        session.currentStudent()->getShoppingCart()->removeItem(index);
+        session->currentStudent()->removeItem(index);
         cout << "item remove.\n";
-    }
+    }*/
     void Panel::increaseBalance() {
         int amount;
         cout << "price ++: ";
         cin >> amount;
 
-        session.currentStudent()->increaseBalance(amount);
+        session->currentStudent()->increaseBalance(amount);
         cout << "price ++.\n";
     }
     void Panel::cancelReservation(int id) {
-        session.currentStudent()->getShoppingCart()->cancelReservation(id);
+        session->currentStudent()->getShoppingCart()->cancelReservation(id);
         cout << "reserv laghv.\n";
     }
     void Panel::viewRecentTransactions() {
