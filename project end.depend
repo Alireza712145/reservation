@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1758040000 source:c:\users\a-des-bat\desktop\new folder\project end\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<ctime>
+	<vector>
+	<stdexcept>
+	<stdlib.h>
+
